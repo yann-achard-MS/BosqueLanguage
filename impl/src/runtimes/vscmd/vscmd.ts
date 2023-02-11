@@ -176,7 +176,7 @@ function compile(masm: MIRAssembly, wsroot: string, config: any): boolean {
         execSync(`${compilerpath} -Os -march=native -std=c++17 -o ${binfile} ${cpppath}/*.cpp`);
     }
     catch (ex) {
-        process.stdout.write(ex);
+        process.stdout.write(String(ex));
         return false;
     }
 

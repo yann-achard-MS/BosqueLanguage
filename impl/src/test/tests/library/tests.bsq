@@ -1,0 +1,79 @@
+//-------------------------------------------------------------------------------------------------------
+// Copyright (C) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+//-------------------------------------------------------------------------------------------------------
+
+namespace NSTest;
+
+function push<T>(v: T, l: List<T>): List<T> {
+    return List<Int>::concat(List<T>@{v}, l);
+}
+
+function pop<T>(l: List<T>): List<T> {
+    return l.removeFirst(1);
+}
+
+entrypoint function push_pop(): Int {
+    let l = List<Int>@{2, 1};
+    var ll = push<Int>(3, l);
+    check ll.size() == 3;
+    check ll.front() == 3;
+    check ll.back() == 1;
+
+    ll = pop<Int>(l);
+    check ll.size() == 1;
+    check ll.front() == 1;
+    check ll.back() == 1;
+
+    return 0;
+}
+
+typedef Node = {
+    v: Int,
+    n: Int | None
+};
+
+//typedef LLMap = Map<Int, Bool>;
+typedef LLMap = Map<Int, {
+    v: Int,
+    n: Int | None
+}>;
+
+entity LL {
+    field head: Int | None = none;
+    field map: LLMap;
+
+    factory static new(): LL {
+        return LL@{map = LLMap@{}};
+    }
+
+    method push(v: Int): LL
+    {
+        let h = this.head;
+        if (h == none) {
+            let newNode: Node = {v=v, n=none};
+            //let newMap: LLMap = LLMap@{1 => true};
+            let newMap: LLMap = LLMap@{1 => {v=v, n=none}};
+            return LL@{
+                head=1,
+                map=newMap
+            };
+        }
+        let n = h+1;
+        return LL@{head=n, map=this.map.unionWith(LLMap@{n => {v=v, n=h}})};
+    }
+
+    method peek(): Int | None
+    {
+        return this.head;
+    }
+}
+
+entrypoint function testee(): Int {
+    let ll = LL::new();
+    check ll.peek() == none;
+    let l1 = ll.push(42);
+    check l1.peek() == 42;
+
+    return 0;
+}

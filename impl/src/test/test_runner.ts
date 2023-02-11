@@ -37,9 +37,9 @@ abstract class TestInfo {
     readonly name: string;
     readonly expected: string | null;
 
-    constructor(name: string, expected: string | null) {
+    constructor(name: string, expected: string | null | undefined) {
         this.name = name;
-        this.expected = expected;
+        this.expected = expected ?? "0";
     }
 }
 
@@ -135,7 +135,7 @@ class TestRunner {
                 if (test.kind === "compile") {
                     compiler_tests.push(new CompileTestInfo(src, test.expected));
                 }
-                else if (test.kind === "aot") {
+                else if (test.kind === "aot" || test.kind === undefined) {
                     aot_tests.push(new ExecuteTestInfo(src, test.entrypoint, test.expected, aot_tests.length, test.args));
                 }
                 else if (test.kind === "symtest") {
@@ -160,7 +160,7 @@ class TestRunner {
         try {
             return execSync(`node ${runnerapp} -t ${testsrc}`).toString().trim();
         }
-        catch (ex) {
+        catch (ex: any) {
             return ex.message + "\n" + ex.output[1].toString() + "\n" + ex.output[2].toString();
         }
     }
@@ -175,7 +175,7 @@ class TestRunner {
             const res = execSync(`${cppexe} ${test.args.join(" ")}`).toString().trim();
             return res;
         }
-        catch (ex) {
+        catch (ex: any) {
             return ex.message + "\n" + ex.output[1].toString() + "\n" + ex.output[2].toString();
         }
     }
@@ -189,7 +189,7 @@ class TestRunner {
             const res = execSync(`${z3path} -smt2 scratch.smt2`).toString().trim();
             return res;
         }
-        catch (ex) {
+        catch (ex: any) {
             return ex.message + "\n" + ex.output[1].toString() + "\n" + ex.output[2].toString();
         }
     }
@@ -212,7 +212,7 @@ class TestRunner {
                 return mres.substring(mres.indexOf(" "), mres.length - 2).trim();
             }
         }
-        catch (ex) {
+        catch (ex: any) {
             return ex.message + "\n" + ex.output[1].toString() + "\n" + ex.output[2].toString();
         }
     }
@@ -233,7 +233,8 @@ class TestRunner {
             const ctest = ts.tests.compiler_tests[i];
             const testsrc = Path.normalize(Path.join(__dirname, "tests", ts.src));
 
-            if(singletest !== undefined && singletest != ctest.name) {
+            if(singletest !== undefined && !ctest.name.startsWith(singletest)) {
+                process.stdout.write(`Skipping ${ctest.name}...`);
                 continue;
             }
 
@@ -259,7 +260,7 @@ class TestRunner {
             const ctest = ts.tests.aot_tests[i];
             const testsrc = Path.normalize(Path.join(__dirname, "tests", ts.src));
 
-            if(singletest !== undefined && singletest != ctest.name) {
+            if(singletest !== undefined && !ctest.name.startsWith(singletest)) {
                 continue;
             }
 

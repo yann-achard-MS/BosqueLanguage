@@ -12,7 +12,8 @@
     },
     "dependencies": {
         "@types/node": "~10.12.18",
-        "commander": "2.20.0"
+        "commander": "2.20.0",
+        "typescript": "^4.5.5"
     },
     "devDependencies": {
         "chalk": "~2.4.2",

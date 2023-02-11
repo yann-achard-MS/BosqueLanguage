@@ -993,5 +993,14 @@
             }
             
         ]
+    },
+    {
+        "src": "tests.bsq",
+        "tests": [
+            {
+                "kind": "compile"
+            },
+            { "entrypoint": "testee" }
+        ]
     }
 ]
